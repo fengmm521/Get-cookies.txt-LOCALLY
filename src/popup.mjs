@@ -33,6 +33,24 @@ const saveToFile = async (text, name, { ext, mimeType }, saveAs = false) => {
   const blob = new Blob([text], { type: mimeType });
   const filename = name + ext;
   const url = URL.createObjectURL(blob);
+
+    // https://github.com/kairi003/Get-cookies.txt-Locally
+
+// Remove existing files
+    const existingFiles = await chrome.downloads.search({ query: [filename] });
+    if (existingFiles.length > 0) {
+    for (const file of existingFiles) {
+        if (file.filename.endsWith(filename)) {
+        try {
+            await chrome.downloads.removeFile(file.id); // 删除文件
+        } catch (error) {
+            console.warn("文件已被删除或不可访问:", error);
+        }
+        await chrome.downloads.erase({ id: file.id }); // 移除下载记录
+        }
+    }
+    }
+
   const id = await chrome.downloads.download({ url, filename, saveAs });
 
   /** @param {chrome.downloads.DownloadDelta} delta  */
